@@ -1,0 +1,121 @@
+Database design change and optimization of current database structure.
+
+1. Below are the suggestions for the User table. 
+
+	1. Define id as an auto increment primary key 
+	2. Change datatype of CHAR to VARCHAR, which will not hold the fixed length space
+	3. Use NOT NULL constraint for the columns which will enforce a column to NOT accept NULL values
+	4. For date column use DATE datatype instead of TEXT
+	5. is_active can be stored as Boolean datatype, as the value of this column must contain true or false
+	6. Naming convention: changed user table to user_master
+
+DROP TABLE IF EXISTS user_master;
+CREATE TABLE user_master
+(
+    user_id               SERIAL NOT NULL PRIMARY KEY,
+    first_name            VARCHAR(16) NOT NULL,
+    last_name             VARCHAR(16) NOT NULL,
+    username              VARCHAR(8) NOT NULL,
+    password              VARCHAR(8) NOT NULL,
+    date_created          DATE NOT NULL,
+    is_active             BOOLEAN NOT NULL
+);
+
+INSERT INTO user_master (first_name, last_name, username, password, date_created, is_active) 
+VALUES ('abc','abc_last','abcuser','Sy8pO378',current_date,'1'),
+       ('xyz','xyz_last','xyzuser','Xy8pO379',current_date,'1'), 
+	     ('pqr','pqr_last','pqruser','Py8pO379',current_date,'0');
+
+SELECT * FROM user_master;
+User_id	first_name	last_name	username	password	date_created	is_active
+1	      Abc	        abc_last  abcuser	  Sy8pO378	2022-05-24   	t
+2	      Xyz	        xyz_last  xyzuser	  Xy8pO379	2022-05-24   	t
+3	      pqr	        pqr_last  pqruser  	Py8pO379	2022-05-24   	f
+
+
+
+2. Below are the suggestions for the device table.
+
+  1. Define id as an auto increment primary key 
+	2. Add user_id as foreign key references from user_master
+	3. We can store number of devices uuid in device_info column which is of JSONB array type
+	4. Naming convention: changed device table to user_device_mapping
+
+DROP TABLE IF EXISTS user_device_mapping;
+CREATE TABLE user_device_mapping 
+(
+    id          SERIAL NOT NULL PRIMARY KEY,
+    user_id     INT,
+    device_info JSONB,
+    CONSTRAINT fk_user FOREIGN KEY(user_id) REFERENCES user_master(user_id)
+);
+
+INSERT INTO user_device_mapping (user_id, device_info) VALUES 
+('1','[{  "deviceid": 1,  "deviceuuid": "123e4567-e89b-12d3-a456-426614174000"},
+{ "deviceid": 2,"deviceuuid": "123e4567-e89b-12d3-a456-426614174002"}]'),
+('2','[{  "deviceid": 1,"deviceuuid": "123e4567-e89b-12d3-a456-426614174022"}]'),
+('3','[{  "deviceid": 1,  "deviceuuid": "123e4567-e89b-12d3-a456-426614174033"},
+{  "deviceid": 2, "deviceuuid": "123e4567-e89b-12d3-a456-426614174003"},
+{  "deviceid": 3,  "deviceuuid": "123e4567-e89b-12d3-a456-426614174333"}]');
+
+SELECT * FROM user_device_mapping;
+
+Id	User_id	  Device_info
+1	  1	        [{"deviceid": 1, "deviceuuid": "123e4567-e89b-12d3-a456-426614174000"}, 
+               {"deviceid": 2, "deviceuuid": "123e4567-e89b-12d3-a456-426614174002"}]
+2	  2	        [{"deviceid": 1, "deviceuuid": "123e4567-e89b-12d3-a456-426614174022"}]
+3	  3	        [{"deviceid": 1, "deviceuuid": "123e4567-e89b-12d3-a456-426614174033"}, 
+               {"deviceid": 2, "deviceuuid": "123e4567-e89b-12d3-a456-426614174003"}, 
+               {"deviceid": 3, "deviceuuid": "123e4567-e89b-12d3-a456-426614174333"}]
+
+
+
+3. Below are the suggestions for the apps per device table.
+
+Here for apps device mapping we can store the distinct devices in Device master table
+
+-- Device master table
+DROP TABLE IF EXISTS device_master;
+CREATE TABLE device_master
+(
+device_id   SERIAL NOT NULL PRIMARY KEY,
+device_uuid uuid not null, 
+CONSTRAINT uk_device_uuid UNIQUE (device_uuid)
+);
+
+INSERT INTO device_master (device_uuid) VALUES 
+('123e4567-e89b-12d3-a456-426614174033'),('123e4567-e89b-12d3-a456-426614174022'),('123e4567-e89b-12d3-a456-426614174011');
+
+SELECT * FROM device_master;
+Device_id	  Device_uuid
+1	          123e4567-e89b-12d3-a456-426614174033
+2	          123e4567-e89b-12d3-a456-426614174022
+3	          123e4567-e89b-12d3-a456-426614174011
+
+
+-- Apps per device
+DROP TABLE IF EXISTS apps_device_mapping;
+CREATE TABLE apps_device_mapping 
+(
+    id SERIAL NOT NULL PRIMARY KEY,
+    device_id INT,
+    apps_info jsonb,
+    CONSTRAINT uk_device_id UNIQUE (device_id),
+    CONSTRAINT fk_user FOREIGN KEY(device_id) REFERENCES device_master(device_id)
+);
+
+INSERT INTO apps_device_mapping (device_id, apps_info) VALUES 
+('1','[{  "app_name": "Gpay",  "date_installed": "22-05-2021"},{  "app_name": "PubG", "date_installed": "22-05-2022"}]'),
+('2','[{  "app_name": "Gpay",  "date_installed": "22-11-2021"},{  "app_name": "PubG","date_installed": "02-12-2022"},
+{  "app_name": "paytm","date_installed": "02-12-2022"}]');
+
+SELECT * FROM apps_device_mapping;
+id	device_id	  apps_info
+1	  1	          [{"app_name": "Gpay", "date_installed": "22-05-2021"}, {"app_name": "PubG", "date_installed": "22-05-2022"}]
+2	  2	          [{"app_name": "Gpay", "date_installed": "22-11-2021"}, {"app_name": "PubG", "date_installed": "02-12-2022"}, {"app_name": "paytm", "date_installed": "02-12-2022"}]
+
+
+
+We can automate this process using stored procedure or function and just call the function/sp from frontend code.
+
+
