@@ -24,13 +24,13 @@ CREATE TABLE user_master
 INSERT INTO user_master (first_name, last_name, username, password, date_created, is_active) 
 VALUES ('abc','abc_last','abcuser','Sy8pO378',current_date,'1'),
        ('xyz','xyz_last','xyzuser','Xy8pO379',current_date,'1'), 
-	     ('pqr','pqr_last','pqruser','Py8pO379',current_date,'0');
+       ('pqr','pqr_last','pqruser','Py8pO379',current_date,'0');
 
 SELECT * FROM user_master;
 User_id	first_name	last_name	username	password	date_created	is_active
-1	      Abc	        abc_last  abcuser	  Sy8pO378	2022-05-24   	t
-2	      Xyz	        xyz_last  xyzuser	  Xy8pO379	2022-05-24   	t
-3	      pqr	        pqr_last  pqruser  	Py8pO379	2022-05-24   	f
+1	      Abc	 abc_last  	abcuser	  	Sy8pO378	2022-05-24   	t
+2	      Xyz	 xyz_last  	xyzuser	  	Xy8pO379	2022-05-24   	t
+3	      pqr	 pqr_last  	pqruser  	Py8pO379	2022-05-24   	f
 
 
 
@@ -61,12 +61,12 @@ INSERT INTO user_device_mapping (user_id, device_info) VALUES
 SELECT * FROM user_device_mapping;
 
 Id	User_id	  Device_info
-1	  1	        [{"deviceid": 1, "deviceuuid": "123e4567-e89b-12d3-a456-426614174000"}, 
-               {"deviceid": 2, "deviceuuid": "123e4567-e89b-12d3-a456-426614174002"}]
-2	  2	        [{"deviceid": 1, "deviceuuid": "123e4567-e89b-12d3-a456-426614174022"}]
-3	  3	        [{"deviceid": 1, "deviceuuid": "123e4567-e89b-12d3-a456-426614174033"}, 
-               {"deviceid": 2, "deviceuuid": "123e4567-e89b-12d3-a456-426614174003"}, 
-               {"deviceid": 3, "deviceuuid": "123e4567-e89b-12d3-a456-426614174333"}]
+1	  1	  [{"deviceid": 1, "deviceuuid": "123e4567-e89b-12d3-a456-426614174000"}, 
+                  {"deviceid": 2, "deviceuuid": "123e4567-e89b-12d3-a456-426614174002"}]
+2	  2	  [{"deviceid": 1, "deviceuuid": "123e4567-e89b-12d3-a456-426614174022"}]
+3	  3	  [{"deviceid": 1, "deviceuuid": "123e4567-e89b-12d3-a456-426614174033"}, 
+                  {"deviceid": 2, "deviceuuid": "123e4567-e89b-12d3-a456-426614174003"}, 
+                  {"deviceid": 3, "deviceuuid": "123e4567-e89b-12d3-a456-426614174333"}]
 
 
 
@@ -112,7 +112,8 @@ INSERT INTO apps_device_mapping (device_id, apps_info) VALUES
 SELECT * FROM apps_device_mapping;
 id	device_id	  apps_info
 1	  1	          [{"app_name": "Gpay", "date_installed": "22-05-2021"}, {"app_name": "PubG", "date_installed": "22-05-2022"}]
-2	  2	          [{"app_name": "Gpay", "date_installed": "22-11-2021"}, {"app_name": "PubG", "date_installed": "02-12-2022"}, {"app_name": "paytm", "date_installed": "02-12-2022"}]
+2	  2	          [{"app_name": "Gpay", "date_installed": "22-11-2021"}, {"app_name": "PubG", "date_installed": "02-12-2022"}, 
+                          {"app_name": "paytm", "date_installed": "02-12-2022"}]
 
 
 
